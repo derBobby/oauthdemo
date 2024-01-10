@@ -42,3 +42,4 @@ build/
 /src/main/resources/application-IT.properties
 /src/main/resources/h2.properties
 /src/main/resources/application.properties
+/src/main/resources/application.yml
