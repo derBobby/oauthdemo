@@ -1,0 +1,50 @@
+name: "CD"
+
+on:
+  pull_request:
+    branches: [ main ]
+    types:
+      - closed
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        # TODO can be environment. Advantages?
+        type: choice
+        options:
+          - "staging"
+          - "production"
+        default: "staging"
+        description: Environment to which the deployment is done.
+
+jobs:
+  mvn-publish:
+    uses: derBobby/java-pipelines/.github/workflows/callable-mvn.yml@main
+    with:
+      mvn-stage: deploy
+      cache: true
+  codeql:
+    needs: mvn-publish
+    uses: derBobby/java-pipelines/.github/workflows/callable-codeql.yml@main
+  docker:
+    needs: mvn-publish
+    uses: derBobby/java-pipelines/.github/workflows/callable-docker.yml@main
+    with:
+      cache-key: ${{ needs.mvn-publish.outputs.cache-key }}
+      environment: ${{ inputs.environment || 'staging' }}
+    secrets:
+      DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
+      DOCKERHUB_ACCESS_TOKEN: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}
+      DOCKERHUB_REPOSITORY: ${{ secrets.DOCKERHUB_REPOSITORY }}
+  deploy:
+    needs: docker
+    uses: derBobby/java-pipelines/.github/workflows/callable-deploy.yml@main
+    with:
+      app: oauthdemo
+      environment: ${{ inputs.environment || 'staging' }}
+    secrets:
+      DEPLOYMENT_USER: ${{ secrets.DEPLOYMENT_USER }}
+      DEPLOYMENT_HOST: ${{ secrets.DEPLOYMENT_HOST }}
+      DEPLOYMENT_PORT: ${{ secrets.DEPLOYMENT_PORT }}
+      DEPLOYMENT_SSH_KEY: ${{ secrets.DEPLOYMENT_SSH_KEY }}
