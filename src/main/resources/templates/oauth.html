@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Information</title>
+</head>
+<body>
+
+<h2>OAuth Information</h2>
+
+<div>
+    <h3>Authorities:</h3>
+    <ul>
+        <li th:each="authority : ${authorities}" th:text="${authority}"></li>
+    </ul>
+</div>
+
+<div>
+    <h3>Credentials:</h3>
+    <p th:text="${credentials}"></p>
+</div>
+
+<div>
+    <h3>Details:</h3>
+    <p th:text="${details}"></p>
+</div>
+
+<div>
+    <h3>Principal:</h3>
+    <p th:text="${principal}"></p>
+</div>
+
+<div>
+    <h3>Name:</h3>
+    <p th:text="${name}"></p>
+</div>
+
+</body>
+</html>
