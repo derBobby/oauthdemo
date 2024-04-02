@@ -1,8 +1,10 @@
 package eu.planlos.oauthdemo;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,18 +17,18 @@ import java.security.Principal;
 public class OauthController {
 
     @GetMapping
-    public String oauthInfos(Model model, Principal principal) {
+    public String oauthInfos(Model model, Principal principal, @AuthenticationPrincipal OAuth2User oauthUser) {
+
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         model.addAttribute("authorities", authentication.getAuthorities());
         model.addAttribute("details", authentication.getDetails());
         model.addAttribute("principal", authentication.getPrincipal());
         model.addAttribute("principalAutowired", principal);
         model.addAttribute("name", authentication.getName());
 
-        DefaultOidcUser user = (DefaultOidcUser) authentication.getPrincipal();
 
+        DefaultOidcUser user = (DefaultOidcUser) authentication.getPrincipal();
         model.addAttribute("v1", user.getFullName());
         model.addAttribute("v2", user.getUserInfo());
         model.addAttribute("v3", user.getName());
@@ -60,6 +62,12 @@ public class OauthController {
         model.addAttribute("v31", user.getSubject());
         model.addAttribute("v32", user.getUpdatedAt());
         model.addAttribute("v33", user.getWebsite());
+
+
+        model.addAttribute("o1", oauthUser.getName());
+        model.addAttribute("o2", oauthUser.getAttributes());
+        model.addAttribute("o3", oauthUser.getAuthorities());
+
         return "oauth";
     }
 }
