@@ -23,7 +23,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/", "/actuator/health", "/favicon.ico").permitAll()
                         .requestMatchers("/oauth").hasAuthority("OIDC_USER")
                         .requestMatchers("/admin").hasRole("admin")
-                        .requestMatchers("/admin2").hasAnyRole("admin", "ROLE_ADMIN", "ROLE_admin", "role_admin")
+                        .requestMatchers("/admin2").hasAnyRole("admin", "ADMIN")
                         .anyRequest().authenticated()
                 ).oauth2Login(Customizer.withDefaults());
         return httpSecurity.build();
