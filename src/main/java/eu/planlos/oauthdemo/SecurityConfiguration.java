@@ -20,10 +20,9 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers("/", "/actuator/health", "/favicon.ico").permitAll()
-//                        .requestMatchers("/oauth").hasAuthority("OIDC_USER")
-//                        .anyRequest().authenticated()
-                        .anyRequest().anonymous()
+                        .requestMatchers("/", "/actuator/health", "/favicon.ico").permitAll()
+                        .requestMatchers("/oauth").hasAuthority("OIDC_USER")
+                        .anyRequest().authenticated()
                 ).oauth2Login(Customizer.withDefaults());
         return httpSecurity.build();
     }
