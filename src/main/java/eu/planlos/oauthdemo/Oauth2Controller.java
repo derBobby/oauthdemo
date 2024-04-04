@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.Map;
 
 @RestController
@@ -22,6 +23,9 @@ public class Oauth2Controller {
 
     @GetMapping("/jwt")
     public Map<String, Object> getUserInfo(@AuthenticationPrincipal Jwt principal) {
-        return Collections.singletonMap("principal", principal.getTokenValue());
+        Map<String, String> map = new Hashtable<String, String>();
+        map.put("user_name", principal.getClaimAsString("preferred_username"));
+        map.put("organization", principal.getClaimAsString("organization"));
+        return Collections.unmodifiableMap(map);
     }
 }
