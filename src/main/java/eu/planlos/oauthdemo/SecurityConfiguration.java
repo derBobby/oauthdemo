@@ -24,7 +24,7 @@ public class SecurityConfiguration {
 //                        .requestMatchers("/oauth").hasAuthority("OIDC_USER")
 //                        .anyRequest().authenticated()
                         .anyRequest().anonymous()
-                );//.oauth2Login(Customizer.withDefaults());
+                ).oauth2Login(Customizer.withDefaults());
         return httpSecurity.build();
     }
 }
