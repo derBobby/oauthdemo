@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head">
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Demo</title>
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta th:name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <base href="/"/>
+    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+
+<body>
+
+<div th:fragment="navbar">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">OAuth Demo</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                </li>
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/admin">Admin</a>-->
+<!--                </li>-->
+                <li class="nav-item">
+                    <a class="nav-link" href="/oauth/infos">/oauth/infos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/oauth2/oidcuser">/oauth2/oidcuser</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-success" href="/oauth2/authorization/nextcloud">Login with Nextcloud</a>
+                </li>
+                <li class="nav-item">
+                    <button onClick="logout()" class="btn btn-warning">Logout POST</button>
+                </li>
+                <li class="nav-item">
+                    <form action="#" th:action="@{/logout}" method="post">
+                        <input class="btn btn-warning" type="submit" value="Logout FORM">
+                    </form>
+                </li>
+                <li class="nav-item">
+                    <button onClick="now()" class="btn btn-danger">Now</button>
+                </li>
+                <li class="nav-item">
+                    <button onClick="nowPost()" class="btn btn-danger">Now Post</button>
+                </li>
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link disabled" href="#">Disabled</a>-->
+<!--                </li>-->
+                <li class="navbar-text">
+                    Logged in as: <span id="user"></span>
+                </li>
+                <li class="navbar-text">
+                    Now: <span id="now"></span>
+                </li>
+                <li class="navbar-text">
+                    Now: <span id="nowpost"></span>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+
+
+<!--    <div class="container authenticated" style="display:none">-->
+
+<!--    </div>-->
+
+
+
+
+</div>
+
+</body>
+
+<footer th:fragment="footer">
+    <script type="text/javascript">
+        $.get("/user", function(data) {
+            $("#user").html(data.name);
+            $(".unauthenticated").hide()
+            $(".authenticated").show()
+        });
+
+        var logout = function() {
+            $.post("/logout", function() {
+                $("#user").html('');
+                $(".unauthenticated").show();
+                $(".authenticated").hide();
+            })
+            return true;
+        }
+
+        var now = function() {
+            $.get("/now", function(response) {
+                // Update the #now HTML tag with the response
+                $('#now').text(response);
+            });
+        };
+
+        var nowPost = function() {
+            $.post("/now/post", function(response) {
+                // Update the #now HTML tag with the response
+                $('#nowpost').text(response);
+            });
+        };
+
+        $.ajaxSetup({
+            beforeSend : function(xhr, settings) {
+                if (settings.type === 'POST' || settings.type === 'PUT' || settings.type === 'DELETE') {
+                    if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                        var header = $('meta[name="_csrf_header"]').attr('content');
+                        var token = $('meta[name="_csrf"]').attr('content');
+                        xhr.setRequestHeader(header, token);
+                    }
+                }
+            },
+            complete: function(xhr, status) {
+                if (xhr.status === 403) {
+                    // Handle CSRF token invalidation or expiration here
+                    console.error("CSRF token invalid or expired");
+                } else if (xhr.status === 200) {
+                    if (xhr.getResponseHeader('Content-Type').indexOf('application/json') !== -1) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.hasOwnProperty('token')) {
+                            var newToken = response.token;
+                            $('meta[name="_csrf"]').attr('content', newToken);
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</footer>
+
+</html>

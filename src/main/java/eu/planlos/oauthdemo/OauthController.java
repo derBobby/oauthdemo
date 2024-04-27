@@ -16,8 +16,8 @@ import java.security.Principal;
 @RequestMapping("/oauth")
 public class OauthController {
 
-    @GetMapping
-    public String oauthInfos(Model model, Principal principal, @AuthenticationPrincipal OAuth2User oauthUser) {
+    @GetMapping("/infos")
+    public String infos(Model model, Principal principal, @AuthenticationPrincipal OAuth2User oauthUser) {
 
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

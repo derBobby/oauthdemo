@@ -1,27 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OAuth Information</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
+<head th:insert="~{fragments :: head}"></head>
+
 <body>
 
+<div th:insert="~{fragments :: navbar}"></div>
 
 <div>
     <h2>SecurityContextHolder.getContext().getAuthentication();</h2>
@@ -222,4 +205,6 @@
 </div>
 
 </body>
+<div th:insert="~{fragments :: footer}"></div>
+
 </html>
