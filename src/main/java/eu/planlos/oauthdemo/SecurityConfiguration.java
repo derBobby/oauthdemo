@@ -7,8 +7,11 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 /**
@@ -21,11 +24,24 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
+    private final ClientRegistrationRepository clientRegistrationRepository;
+
+    public SecurityConfiguration(ClientRegistrationRepository clientRegistrationRepository) {
+        this.clientRegistrationRepository = clientRegistrationRepository;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
                 .cors(Customizer.withDefaults())
+//                .cors(c -> c.configurationSource(request -> {
+//                    CorsConfiguration config = new CorsConfiguration();
+//                    config.setAllowedOrigins(List.of("http://localhost:8080", "https://cloud.planlos.eu"));
+//                    config.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS"));
+//                    config.setAllowedHeaders(Arrays.asList("x-requested-with", "authorization", "content-type"));
+//                    return config;
+//                }))
                 .csrf(c -> c.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/actuator/health", "/favicon.ico", "/error", "/webjars/**").permitAll()
@@ -39,13 +55,26 @@ public class SecurityConfiguration {
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 )
                 .logout(l -> l
-                                // .logoutUrl("/logout")
-                                .logoutSuccessUrl("/").permitAll()
-                        //TODO how to logout globally?
+                        .logoutSuccessHandler(oidcLogoutSuccessHandler())
+//                        .logoutSuccessUrl("/").permitAll()
                 )
                 .oauth2Login(Customizer.withDefaults())
+                .oidcLogout((logout) -> logout
+                        .backChannel(Customizer.withDefaults())
+                )
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS));
 
         return httpSecurity.build();
+    }
+
+    private LogoutSuccessHandler oidcLogoutSuccessHandler() {
+        OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
+                new OidcClientInitiatedLogoutSuccessHandler(this.clientRegistrationRepository);
+
+        // Sets the location that the End-User's User Agent will be redirected to
+        // after the logout has been performed at the Provider
+        oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
+
+        return oidcLogoutSuccessHandler;
     }
 }

@@ -58,9 +58,9 @@
                 <li class="nav-item">
                     <a class="nav-link btn btn-success" href="/oauth2/authorization/nextcloud">Login with Nextcloud</a>
                 </li>
-                <li class="nav-item">
-                    <button onClick="logout()" class="btn btn-warning">Logout POST</button>
-                </li>
+<!--                <li class="nav-item">-->
+<!--                    <button onClick="logout()" class="btn btn-warning">Logout AJAX</button>-->
+<!--                </li>-->
                 <li class="nav-item">
                     <form action="#" th:action="@{/logout}" method="post">
                         <input class="btn btn-warning" type="submit" value="Logout FORM">
@@ -109,14 +109,14 @@
             $(".authenticated").show()
         });
 
-        var logout = function() {
-            $.post("/logout", function() {
-                $("#user").html('');
-                $(".unauthenticated").show();
-                $(".authenticated").hide();
-            })
-            return true;
-        }
+        // var logout = function() {
+        //     $.post("/logout", function() {
+        //         $("#user").html('');
+        //         $(".unauthenticated").show();
+        //         $(".authenticated").hide();
+        //     })
+        //     return true;
+        // }
 
         var now = function() {
             $.get("/now", function(response) {
